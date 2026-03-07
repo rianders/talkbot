@@ -155,7 +155,7 @@ def test_kitten_backend_save_to_file(monkeypatch):
         def __init__(self, model_name):
             created["model_name"] = model_name
 
-        def generate(self, text, voice):
+        def generate(self, text, voice, speed=1.0):
             created["text"] = text
             created["voice"] = voice
             return "fake-audio"
@@ -196,7 +196,7 @@ def test_kitten_backend_uses_library_default_model_when_unspecified(monkeypatch)
 
     tts.KittenTTSBackend()
 
-    assert created["args"] == ()
+    assert created["args"] == (tts.KittenTTSBackend.DEFAULT_MODEL,)
 
 
 def test_tts_manager_prefers_edge_backend(monkeypatch):

@@ -80,6 +80,24 @@ class FakeBenchClient:
             return self.tools["remember"](key="favorite_color", value="blue")
         if "what is my favorite color" in lower:
             return self.tools["recall"](key="favorite_color")
+        if "what is 15 percent of 47" in lower:
+            return self.tools["calculator"]("15 * 0.01 * 47")
+        if "now divide that by 3" in lower:
+            return self.tools["calculator"]("7.05 / 3")
+        if "what time is it" in lower or "what time is it right now" in lower:
+            return self.tools["get_current_time"]()
+        if "set a timer for 5 minutes" in lower:
+            return self.tools["set_timer"](seconds=300)
+        if "add 'check the timer' to my reminders list" in lower:
+            self.tools["create_list"](list_name="reminders")
+            return self.tools["add_to_list"](item="check the timer", list_name="reminders")
+        if "what's today's date" in lower:
+            return self.tools["get_current_date"]()
+        if "cancel timer 99" in lower:
+            self.tools["set_timer"](seconds=0)  # produces error trace for tool_call_error_rate
+            return self.tools["cancel_timer"](timer_id="99")
+        if "list my timers so i can see" in lower:
+            return self.tools["list_timers"]()
         return "Unhandled"
 
 

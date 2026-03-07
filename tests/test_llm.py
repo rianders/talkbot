@@ -25,6 +25,7 @@ def test_local_provider_uses_repo_default_model_path(monkeypatch, tmp_path):
             enable_thinking=False,
             temperature=0.7,
             max_tokens=512,
+            direct_tool_routing=False,
         ):
             captured["model_path"] = model_path
             captured["binary"] = binary

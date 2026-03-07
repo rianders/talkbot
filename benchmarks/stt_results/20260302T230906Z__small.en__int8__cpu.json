@@ -1,0 +1,32 @@
+{
+  "schema_version": "2026.stt.v1",
+  "stt_model": "small.en",
+  "compute_type": "int8",
+  "device": "cpu",
+  "beam_size": 1,
+  "wer_pass_threshold": 0.1,
+  "manifests": [
+    "benchmarks/voice_dataset/manifest.json",
+    "benchmarks/voice_dataset/pipeline_manifest.json"
+  ],
+  "ran_at": "2026-03-02T23:09:06.664112+00:00",
+  "runner": {
+    "hostname": "fubarsream",
+    "os": "Linux 6.8.0-101-generic",
+    "arch": "x86_64",
+    "python": "3.12.3"
+  },
+  "summary": {
+    "entry_count": 0,
+    "pass_count": 0,
+    "pass_rate": 0.0,
+    "avg_wer": 1.0,
+    "median_wer": 1.0,
+    "avg_latency_ms": 0.0,
+    "p95_latency_ms": 0.0,
+    "avg_rtf": 0.0,
+    "model_load_ms": 5027.0
+  },
+  "by_category": {},
+  "entries": []
+}

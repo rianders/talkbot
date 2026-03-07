@@ -20,6 +20,9 @@ A talking AI assistant with local-first LLM + TTS defaults, plus optional OpenRo
 TalkBot uses `uv` for easy, platform-agnostic dependency management.
 
 ```bash
+# Optional but recommended: keep uv cache local to this repo
+export UV_CACHE_DIR=.uv-cache
+
 # 1) Install dependencies
 uv sync --extra voice
 
@@ -53,7 +56,7 @@ uv run talkbot-gui
 | **GUI (tkinter)** | ✅ | ✅ | tkinter bundled with Python on Windows; system package on Linux |
 | **download_model.py** | ✅ | ✅ | Platform-agnostic Python downloader for GGUF models |
 
-> **Dependency note (2026-02-24):** TalkBot now uses `kittentts` from PyPI, so `UV_SKIP_WHEEL_FILENAME_CHECK` is no longer required.
+> **Dependency note:** TalkBot pins `kittentts==0.8.1` via direct GitHub release wheel (not on PyPI). `uv sync` fetches it automatically. `UV_SKIP_WHEEL_FILENAME_CHECK` is not required.
 
 ## Installation
 
@@ -133,23 +136,24 @@ uv pip install -e .
 ### Install for development
 
 ```bash
+# Optional but recommended: keep uv cache local to this repo
+export UV_CACHE_DIR=.uv-cache
 uv sync
 ```
 
-#### Troubleshooting: stale lockfile/cache after the KittenTTS fix
+#### Troubleshooting: cache/lock mismatch
 
-If your local checkout or cache still reflects the old direct-wheel setup, you may still see lock/resolve failures mentioning `kittentts` wheel filename/version mismatch.
-
-From a fresh checkout of main, run:
+If dependency resolution behaves inconsistently after updates:
 
 ```bash
+export UV_CACHE_DIR=.uv-cache
 uv sync --refresh
 ```
 
-If you still see the old error, clear local cache and retry:
+If needed, remove only the project cache and retry:
 
 ```bash
-uv cache clean
+rm -rf .uv-cache
 uv sync
 ```
 
@@ -616,6 +620,15 @@ For local inference, any GGUF-format model supported by llama.cpp works. Default
 ## Conversation Benchmarking
 
 Use scripted multi-turn conversations to score tool reliability, latency, context usage, and memory footprint.
+
+### Preflight (run before any benchmark)
+
+```bash
+export UV_CACHE_DIR=.uv-cache
+uv run -- python scripts/check_benchmark_prereqs.py --check-kittentts
+```
+
+Only run benchmarks after this reports `PASS`.
 
 ### Run a single profile
 

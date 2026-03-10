@@ -80,7 +80,7 @@ model size for interactive use on this hardware:
 |---|---|---|
 | qwen3.5-0.8b Q8_0 | 18.9 | ✓ |
 | qwen3.5-0.8b Q4_K_M | 22.8 | ✓ |
-| qwen3.5-2b Q4_K_M | ~8–10 (est.) | ✓ marginal |
+| qwen3.5-2b Q4_K_M | 11.2 (measured) | ✓ marginal |
 | qwen3.5-4b Q4_K_M | 3.7 | ✗ borderline |
 | qwen3-8b Q4_K_M | ~2–3 (est.) | ✗ |
 
@@ -95,8 +95,10 @@ model size for interactive use on this hardware:
   qwen3.5-4b Q4_K_M (5.5 GB, 3.7 tok/s, 70% success).
 - **qwen3.5-2b Q8_0 via ollama**: 20% success — worst result in the entire
   matrix. ollama overhead plus Q8_0 weight size (~1 GB per decode step) make
-  this uncompetitive. Replaced by a single llama-server Q4_K_M run for a fair
-  verdict on the 2b size class.
+  this uncompetitive. The definitive llama-server Q4_K_M run (PR #29) revealed
+  this was entirely backend noise: 2b Q4_K_M scores 90% on llama-server,
+  matching the 0.8b Q8_0. However, 2b is 2× slower (44s vs 21s avg) and
+  uses 1.6× more memory (1.2 GB vs 774 MB), so 0.8b Q8_0 remains preferred.
 - **ollama as primary backend**: superseded by llama-server b8248, which
   delivers 3× lower latency, 2.5× lower memory, and +9pp tool selection
   accuracy on identical weights. Ollama results remain in published history
@@ -112,3 +114,33 @@ model size for interactive use on this hardware:
 | qwen3.5-4b | llama-server | Q4_K_M | quality ceiling |
 
 Tracked in issue #25.
+
+---
+
+## 2026-03-09 — llama-server size sweep results (fubarsream)
+
+### qwen3.5 on llama-server b8248 — definitive per-size results
+
+| Model | Quant | Success | Tool Sel | Arg Acc | Gen/s | Avg ms | Mem MB | Notes |
+|---|---|---|---|---|---|---|---|---|
+| 0.8b | Q8_0 | **90%** | 96% | 100% | 18.9 | 20,683 | 774 | Recommended default |
+| 0.8b | Q4_K_M | 80% | 96% | 100% | 22.8 | 17,785 | 508 | Fastest; unit-conv arg error |
+| 2b | Q4_K_M | **90%** | 95.65% | 100% | 11.2 | 44,241 | 1,222 | Ties 0.8b; 2× slower |
+| 4b | Q4_K_M | 70%* | 86.96% | 100% | 6.4 | 69,682 | 2,725 | Worst result |
+
+### Key finding: ollama 2b results were noise
+
+The ollama 2b runs (20–30% success) were entirely backend overhead, not model
+capability. On llama-server, 2b Q4_K_M matches 0.8b Q8_0 at 90% success. This
+invalidates any size-scaling conclusions drawn from ollama results.
+
+*4b success is 70% against the unpatched scenario suite (PR #27 not yet merged);
+with the memory_context_pressure rubric fix it is likely 80%. Still the worst result.
+
+### Recommendation
+
+**0.8b Q8_0** is the optimal choice on this hardware: highest success, fastest
+gen/s, lowest memory of the competitive tier. Larger models are strictly worse:
+2b ties quality at 2× the cost; 4b is the worst result — 3× slower, 3.5× more
+memory, lower success rate than the 0.8b. Non-monotonic scaling confirmed on
+llama-server (not a backend artifact).

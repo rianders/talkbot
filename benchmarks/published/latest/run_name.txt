@@ -1,1 +1,1 @@
-llama-server-qwen35-2b-q4km
+llama-server-qwen35-4b-q4km
